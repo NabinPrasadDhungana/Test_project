@@ -15,6 +15,7 @@ def remove_contact(name):
     if name in contacts:
         contacts.pop(name)
         print(f"Contact removed for {name}")
+        
     else:
         print("Contact doesn't already exist!")
 
@@ -23,19 +24,15 @@ def update_contact():
     if not name in contacts:
         print("The contact doesn't exist to update!")
         return
+    
     else:
         number = input("Enter the number: ")
-
         contacts.update({name: number})
         print(f'Contact updated for {name}')
-
-        
 
 def view_contacts():
     print("All contacts are:")
     print(contacts)
-
-# def update_contact()
 
 while True:
     print("Select options:")
