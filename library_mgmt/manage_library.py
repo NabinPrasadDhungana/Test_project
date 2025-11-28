@@ -1,3 +1,5 @@
+import datetime
+
 class Book:
     def __init__(self, book_id, title, author, quantity):
         self.book_id = book_id
@@ -14,24 +16,39 @@ class Book:
     def update_quantity(self, quantity):
         self.quantity += quantity
     
+class BorrowedBookRecord:
+    def __init__(self, member, book, borrowed_date, returned_date=None):
+        self.member = member
+        self.book = book
+        self.borrowed_date = borrowed_date
+        self.returned_date = returned_date
+
 class Member:
     def __init__(self, member_id, name):
         self.member_id = member_id
         self.name = name
         self.borrowed_books = []
 
-    def borrow_book(self, book):
+    def borrow_book(self, book, library):
         if book.check_availability() > 0:
             self.borrowed_books.append(book)
             book.update_quantity(-1)
+            borrowed_date = datetime.datetime.now()
+            record = BorrowedBookRecord(self, book, borrowed_date)
+            library.borrowed_history.append(record)
             print(f"Borrowed book '{book.title}'")
         else:
             print(f"Book '{book.title}' not available!")
 
-    def return_book(self, book):
+    def return_book(self, book, library):
         if book in self.borrowed_books:
             self.borrowed_books.remove(book)
             book.update_quantity(1)
+
+            for record in library.borrowed_history:
+                if record.member == self and record.book == book and record.returned_date is None:
+                    record.returned_date = datetime.datetime.now()
+                    break
             print(f"Book '{book.title}' returned!")
         else:
             print(f"{self.name} does not have '{book.title}' borrowed!")
@@ -48,6 +65,7 @@ class Library:
     def __init__(self):
         self.books = []
         self.members = []
+        self.borrowed_history = []
 
     def add_book(self, book):
         self.books.append(book)
@@ -84,6 +102,17 @@ class Library:
         self.members.append(member)
         print(f"'{member.name}' added to the library.")
 
+    def view_borrowed_history(self):
+        if not self.borrowed_history:
+            print("No borrowed history available.")
+            return
+        print("Borrowed History:")
+        for record in self.borrowed_history:
+            member_name = record.member.name
+            book_title = record.book.title
+            borrowed_date = record.borrowed_date.strftime('%Y-%m-%d %H:%M:%S')
+            returned_date = record.returned_date.strftime('%Y-%m-%d %H:%M:%S') if record.returned_date else None
+            print(f"Member: {member_name}, Book: {book_title}, Borrowed: {borrowed_date}, Returned: {returned_date}")
 
 library = Library()
 
@@ -106,7 +135,8 @@ while True:
     print("1. View all books  2. Add books")
     print("3. Search a book   4. Borrow a book")
     print("5. Return a book   6. View borrowed books")
-    print("7. Add new member    8. Exit")
+    print("7. Add new member    8. View borrowed history")
+    print("9. Exit")
 
     choice = input("Enter you choice: ")
 
@@ -133,7 +163,7 @@ while True:
         book = next((book for book in library.books if book.book_id == book_id), None)
 
         if member and book:
-            member.borrow_book(book)
+            member.borrow_book(book, library)
         else:
             print("Either member or book id is invalid.")
 
@@ -145,7 +175,7 @@ while True:
         book = next((book for book in library.books if book.book_id == book_id), None)
 
         if member and book:
-            member.return_book(book)
+            member.return_book(book, library)
         else:
             print("Either member or book id is invalid.")
 
@@ -167,6 +197,9 @@ while True:
         library.register_member(user)
 
     elif choice == '8':
+        library.view_borrowed_history()
+
+    elif choice == '9':
         print("Exiting...")
         break
 
