@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings 
 
 # Create your models here.
 class Category(models.Model):
@@ -13,6 +14,7 @@ class Blog(models.Model):
     slug = models.SlugField(unique=True, max_length=200)
     description = models.TextField()
     image = models.ImageField(upload_to='blog_images', blank=True, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='blogs')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
