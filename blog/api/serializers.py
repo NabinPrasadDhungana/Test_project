@@ -29,7 +29,7 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['name', 'slug']
 
-class BlogSerailizer(serializers.ModelSerializer):
+class BlogSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(read_only=True)
     author = serializers.CharField(read_only=True)
     category = serializers.CharField()
