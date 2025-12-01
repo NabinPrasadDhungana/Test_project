@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from accounts.models import User
 from baseapp.models import Category, Blog
-from .serializers import UserSerializer, CategorySerializer
+from .serializers import UserSerializer, CategorySerializer, BlogSerailizer
 
 # Create your views here.
 class UserViewSet(viewsets.ModelViewSet):
@@ -28,5 +28,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
         else:
             return [IsAdminUser()]
         
-    
-    
+class BlogViewSet(viewsets.ModelViewSet):
+    queryset = Blog.objects.all()
+    serializer_class = BlogSerailizer
+
+    def perform_create(self, serializer):
+            serializer.save(author=self.request.user)
+            

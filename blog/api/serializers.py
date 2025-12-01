@@ -23,7 +23,17 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class CategorySerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField(read_only=True)
 
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ['name', 'slug']
+
+class BlogSerailizer(serializers.ModelSerializer):
+    slug = serializers.SlugField(read_only=True)
+    author = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Blog
+        fields = ['title', 'slug', 'description', 'image', 'author', 'category', 'created_at', 'updated_at']
+        
