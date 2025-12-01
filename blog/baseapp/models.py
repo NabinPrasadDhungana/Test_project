@@ -8,6 +8,12 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.name.lower().replace(" ", "-")
+        super().save(*args, **kwargs)
+
 
 class Blog(models.Model):
     title = models.CharField(max_length=150, null=True)
@@ -21,3 +27,8 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.title.lower().replace(" ", "-")
+        super().save(*args, **kwargs)
