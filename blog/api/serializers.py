@@ -17,6 +17,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'name', 'email', 'username', 'avatar', 'password']
 
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+
+        return user
+
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:

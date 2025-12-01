@@ -11,18 +11,22 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_permissions(self):
-        permission_classes = []
         if self.request.method in ['GET', 'PUT', 'PATCH']:
-            permission_classes = [IsAuthenticated]
+            return [IsAuthenticated()]
         if self.request.method == 'POST':
-            permission_classes = [AllowAny]
+            return [AllowAny()]
         elif self.request.method == 'DELETE':
-            permission_classes = [IsAdminUser]
-        
-        return [permission() for permission in permission_classes]
-
+            return [IsAdminUser()]
+    
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        else:
+            return [IsAdminUser()]
+        
     
     
