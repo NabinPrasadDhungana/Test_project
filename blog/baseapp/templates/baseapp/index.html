@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Home | My Blog{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+	<div class="row justify-content-center">
+		<div class="col-md-8 text-center">
+			<h1 class="display-4 mb-3">Welcome to My Blog!</h1>
+			<p class="lead mb-4">Explore insightful articles, share your stories, and connect with a vibrant community of readers and writers.</p>
+			<a href="/accounts/login/" class="btn btn-primary btn-lg">Get Started</a>
+		</div>
+	</div>
+</div>
+<section class="mt-5">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-4">
+				<h3>Latest Posts</h3>
+				<p>Stay updated with the newest articles from our authors.</p>
+			</div>
+			<div class="col-md-4">
+				<h3>Join the Community</h3>
+				<p>Sign up to comment, like, and share your own posts.</p>
+			</div>
+			<div class="col-md-4">
+				<h3>About Us</h3>
+				<p>Learn more about our mission and the team behind the blog.</p>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock %}
