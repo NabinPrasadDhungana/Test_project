@@ -32,8 +32,9 @@ class CategorySerializer(serializers.ModelSerializer):
 class BlogSerailizer(serializers.ModelSerializer):
     slug = serializers.SlugField(read_only=True)
     author = serializers.CharField(read_only=True)
+    category = serializers.CharField()
 
     class Meta:
         model = Blog
-        fields = ['title', 'slug', 'description', 'image', 'author', 'category', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'slug', 'description', 'image', 'author', 'category', 'created_at', 'updated_at']
         
