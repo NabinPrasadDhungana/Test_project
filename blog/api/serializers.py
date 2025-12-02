@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.core.validators import RegexValidator
 from accounts.models import User
-from baseapp.models import Category, Blog
+from baseapp.models import Category, Blog, Comment, Like
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -36,5 +36,19 @@ class BlogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ['id', 'title', 'slug', 'description', 'image', 'author', 'category', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'slug', 'description', 'image', 'author', 'category', 'created_at', 'updated_at',]
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['blog', 'user', 'message', 'created_at', 'updated_at']
+
+class LikeSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Like
+        fields = ['blog', 'user', 'created_at']
         
