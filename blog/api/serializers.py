@@ -31,12 +31,46 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class BlogSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(read_only=True)
-    author = serializers.CharField(read_only=True)
+    author = serializers.SerializerMethodField()
+
+    def get_author(self, obj):
+        return {
+            "username": obj.author.username,
+            "name": obj.author.name,
+            "avatar": obj.author.avatar.url if obj.author.avatar else None
+        }
     category = serializers.CharField()
+    likes_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Blog
-        fields = ['id', 'title', 'slug', 'description', 'image', 'author', 'category', 'created_at', 'updated_at',]
+        fields = ['id', 'title', 'slug', 'description', 'image', 'author', 'category', 'created_at', 'updated_at', 'likes_count', 'is_liked']
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
+    
+    def create(self, validated_data):
+        from baseapp.models import Category
+        category_name = validated_data.pop('category')
+        category, _ = Category.objects.get_or_create(name=category_name)
+        validated_data['category'] = category
+        validated_data['author'] = self.context['request'].user
+        return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        from baseapp.models import Category
+        if 'category' in validated_data:
+            category_name = validated_data.pop('category')
+            category, _ = Category.objects.get_or_create(name=category_name)
+            validated_data['category'] = category
+        return super().update(instance, validated_data)
 
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.CharField(read_only=True)

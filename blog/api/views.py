@@ -6,6 +6,10 @@ from accounts.models import User
 from baseapp.models import Category, Blog, Comment, Like
 from .serializers import UserSerializer, CategorySerializer, BlogSerializer, CommentSerializer, LikeSerializer
 from .filters import BlogFilter
+from django.contrib.auth import authenticate, login
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 # Create your views here.
 class UserViewSet(viewsets.ModelViewSet):
@@ -19,6 +23,8 @@ class UserViewSet(viewsets.ModelViewSet):
             return [AllowAny()]
         elif self.request.method == 'DELETE':
             return [IsAdminUser()]
+        else:
+            return [AllowAny()]
     
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -50,7 +56,12 @@ class BlogViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    filterset_fields = ['blog']
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -72,4 +83,23 @@ class LikeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class SessionLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user_id': user.id,
+                'username': user.username
+            })
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     

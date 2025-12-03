@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Login</h2>
+    <form id="loginForm">
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <div id="loginMessage" class="mt-3"></div>
+</div>
+<script>
+// JWT login handler
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    const response = await fetch('/api/login/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(data)
+    });
+
+    const messageDiv = document.getElementById('loginMessage');
+    if (response.ok) {
+        const tokens = await response.json();
+        // Store tokens using TokenManager to ensure consistent keys
+        TokenManager.setTokens(tokens.access, tokens.refresh, tokens.username, tokens.user_id);
+        messageDiv.innerHTML = '<div class="alert alert-success">Login successful! JWT tokens stored.</div>';
+        // Optionally redirect after login
+        window.location.href = '/baseapp/';
+    } else {
+        const error = await response.json();
+        let errorMsg = 'Login failed.<br>';
+        if (error && typeof error === 'object') {
+            for (const key in error) {
+                errorMsg += `<strong>${key}:</strong> ${error[key]}<br>`;
+            }
+        }
+        messageDiv.innerHTML = `<div class="alert alert-danger">${errorMsg}</div>`;
+    }
+});
+</script>
+{% endblock %}

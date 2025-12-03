@@ -7,11 +7,11 @@ from .models import Blog, Comment
 from .forms import CommentForm
 
 # Create your views here.
-# class IndexView(ListView):
-#     model = Blog
-#     template_name = 'baseapp/index.html'
-#     context_object_name = 'blogs'
-#     ordering = ['-created_at']
+class IndexView(ListView):
+    model = Blog
+    template_name = 'index.html'
+    context_object_name = 'blogs'
+    ordering = ['-created_at']
 
 # class BlogDetailView(FormMixin, DetailView):
 #     model = Blog
