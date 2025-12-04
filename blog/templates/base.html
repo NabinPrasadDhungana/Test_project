@@ -17,6 +17,14 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'category_list' %}">Categories</a>
+                    </li>
+                </ul>
                 <!-- Search Bar -->
                 <form class="d-flex mx-auto" role="search" style="max-width: 400px;" id="searchForm">
                     <input class="form-control me-2" type="search" placeholder="Search posts..." aria-label="Search" id="searchInput">
@@ -24,9 +32,6 @@
                 </form>
                 
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}">Home</a>
-                    </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <button class="btn btn-primary me-2" id="createPostBtn">

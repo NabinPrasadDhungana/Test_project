@@ -3,7 +3,7 @@ from rest_framework.generics import CreateAPIView
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormMixin
 from django.urls import reverse
-from .models import Blog, Comment
+from .models import Blog, Comment, Category
 from .forms import CommentForm
 
 # Create your views here.
@@ -30,4 +30,23 @@ class BlogDetailView(DetailView):
             context['user_has_liked'] = self.object.likes.filter(user=self.request.user).exists()
         else:
             context['user_has_liked'] = False
+        return context
+
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'category_list.html'
+    context_object_name = 'categories'
+
+class CategoryBlogListView(ListView):
+    model = Blog
+    template_name = 'category_blog_list.html'
+    context_object_name = 'blogs'
+
+    def get_queryset(self):
+        self.category = Category.objects.get(slug=self.kwargs['slug'])
+        return Blog.objects.filter(category=self.category).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = self.category
         return context

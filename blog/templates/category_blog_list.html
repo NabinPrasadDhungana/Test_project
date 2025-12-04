@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ category.name }} | Blog Post App{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/feed.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="feed-container">
+    <div class="mb-4">
+        <a href="{% url 'category_list' %}" class="text-decoration-none text-muted mb-2 d-inline-block">
+            <i class="bi bi-arrow-left"></i> All Categories
+        </a>
+        <h1 class="fw-bold">{{ category.name }}</h1>
+        <p class="text-muted">Showing all posts in {{ category.name }}</p>
+    </div>
+
+    <div id="feed-container">
+        <!-- Posts will be loaded here by feed.js -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/feed.js' %}"></script>
+<script>
+    // Override loadPosts to filter by category
+    const originalLoadPosts = loadPosts;
+    
+    // We need to modify how loadPosts works or create a new function.
+    // Since feed.js is designed for the home page, let's create a specialized loader here
+    // that uses the search/filter API.
+    
+    async function loadCategoryPosts() {
+        const container = document.getElementById('feed-container');
+        container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+        try {
+            // Use the filter API
+            const categoryName = "{{ category.name }}";
+            const url = `/api/blogs/?category__name=${encodeURIComponent(categoryName)}`;
+            
+            let response;
+            if (TokenManager.isAuthenticated()) {
+                response = await TokenManager.authenticatedFetch(url);
+            } else {
+                response = await fetch(url);
+            }
+
+            if (!response.ok) throw new Error('Failed to load posts');
+
+            const posts = await response.json();
+            container.innerHTML = '';
+
+            if (posts.length === 0) {
+                container.innerHTML = '<div class="text-center py-5 text-muted">No posts found in this category.</div>';
+                return;
+            }
+
+            posts.forEach(post => {
+                container.appendChild(createPostElement(post));
+            });
+
+        } catch (error) {
+            console.error('Error loading category posts:', error);
+            container.innerHTML = '<div class="alert alert-danger text-center">Failed to load posts. Please try again later.</div>';
+        }
+    }
+
+    // Replace the DOMContentLoaded listener from feed.js or just run our function
+    // Since feed.js adds a listener, we might have a race condition or double load.
+    // However, feed.js loads all posts by default. We want to avoid that.
+    // A clean way is to define a global flag or just clear the container and load ours.
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Wait a bit to let feed.js do its thing (if it does) then overwrite, 
+        // or better, modify feed.js to accept a global config.
+        // For now, let's just run our loader which will overwrite the container content.
+        loadCategoryPosts();
+    });
+</script>
+{% endblock %}
