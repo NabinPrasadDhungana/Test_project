@@ -11,7 +11,7 @@
 <div class="feed-container" id="feed-container-wrapper">
     {% if user.is_authenticated %}
     <div class="create-post-widget" onclick="showCreatePostModal()">
-        <img src="{{ user.avatar.url|default:'/media/avatars/default/avatar.png' }}" alt="Avatar" class="post-avatar">
+        <img src="{{ user.avatar.url }}" alt="Avatar" class="post-avatar">
         <div class="create-post-input">
             What's on your mind, {{ user.name|default:user.username }}?
         </div>

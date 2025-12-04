@@ -12,7 +12,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">Blog Post App</a>
+            <a class="navbar-brand" href="{% url 'index' %}">Blog Post App</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -35,7 +35,7 @@
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="{{ user.avatar.url|default:'/media/avatars/default/avatar.png' }}" alt="Avatar" class="rounded-circle me-2" width="32" height="32">
+                                <img src="{{ user.avatar.url|default:'/media/avatars/default/default.jpg' }}" alt="Avatar" class="rounded-circle me-2" width="32" height="32">
                                 {{ user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">

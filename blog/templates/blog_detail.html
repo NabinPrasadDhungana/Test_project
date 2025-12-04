@@ -241,7 +241,7 @@
         
         <div class="blog-detail-meta">
             <div class="blog-author-info" onclick="window.location.href='{% url 'public_profile' blog.author.username %}'">
-                <img src="{{ blog.author.avatar.url|default:'/media/avatars/default/avatar.png' }}" 
+                <img src="{{ blog.author.avatar.url|default:'/media/avatars/default/default.jpg' }}" 
                      alt="{{ blog.author.username }}" 
                      class="blog-author-avatar">
                 <div class="blog-author-details">
