@@ -18,27 +18,21 @@
     </div>
 
     <div id="feed-container">
-        <!-- Posts will be loaded here by feed.js -->
+        <!-- Posts will be loaded here -->
     </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'js/feed.js' %}"></script>
+<script src="{% static 'js/auth.js' %}"></script>
 <script>
-    // Override loadPosts to filter by category
-    const originalLoadPosts = loadPosts;
-    
-    // We need to modify how loadPosts works or create a new function.
-    // Since feed.js is designed for the home page, let's create a specialized loader here
-    // that uses the search/filter API.
-    
+    // Load posts filtered by category
     async function loadCategoryPosts() {
         const container = document.getElementById('feed-container');
         container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 
         try {
-            // Use the filter API
+            // Use the category name filter
             const categoryName = "{{ category.name }}";
             const url = `/api/blogs/?category__name=${encodeURIComponent(categoryName)}`;
             
@@ -69,15 +63,61 @@
         }
     }
 
-    // Replace the DOMContentLoaded listener from feed.js or just run our function
-    // Since feed.js adds a listener, we might have a race condition or double load.
-    // However, feed.js loads all posts by default. We want to avoid that.
-    // A clean way is to define a global flag or just clear the container and load ours.
-    
+    // Create post element (copied from feed.js)
+    function createPostElement(post) {
+        const article = document.createElement('article');
+        article.className = 'post-card';
+        
+        const postUrl = `/baseapp/${post.slug}/`;
+        const authorUrl = `/accounts/profile/${post.author.username}/`;
+        
+        article.innerHTML = `
+            <div class="post-header">
+                <img src="${post.author.avatar || '/media/avatars/default/default.jpg'}" alt="${post.author.username}" class="author-avatar">
+                <div class="author-info">
+                    <a href="${authorUrl}" class="author-name">${post.author.username}</a>
+                    <div class="post-meta">
+                        <span class="post-date">${formatDate(post.created_at)}</span>
+                        <span class="post-category">${post.category.name}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="post-content">
+                <h2 class="post-title"><a href="${postUrl}">${post.title}</a></h2>
+                <p class="post-description">${post.description.substring(0, 200)}${post.description.length > 200 ? '...' : ''}</p>
+                ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image">` : ''}
+            </div>
+            <div class="post-footer">
+                <button class="post-action like-btn" data-post-id="${post.id}">
+                    <i class="bi bi-heart"></i>
+                    <span class="like-count">${post.likes_count || 0}</span>
+                </button>
+                <a href="${postUrl}" class="post-action">
+                    <i class="bi bi-chat"></i>
+                    <span>${post.comments_count || 0}</span>
+                </a>
+            </div>
+        `;
+        
+        return article;
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) return 'Today';
+        if (diffDays === 1) return 'Yesterday';
+        if (diffDays < 7) return `${diffDays} days ago`;
+        if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+        if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+        return `${Math.floor(diffDays / 365)} years ago`;
+    }
+
+    // Load posts when page loads
     document.addEventListener('DOMContentLoaded', () => {
-        // Wait a bit to let feed.js do its thing (if it does) then overwrite, 
-        // or better, modify feed.js to accept a global config.
-        // For now, let's just run our loader which will overwrite the container content.
         loadCategoryPosts();
     });
 </script>

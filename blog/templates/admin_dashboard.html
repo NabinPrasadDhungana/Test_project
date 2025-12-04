@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Blog Post App{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <div class="admin-header">
+        <h1><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+        <p class="text-muted">Welcome back, {{ user.username }}! Here's what's happening with your blog.</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card stat-card-users">
+                <div class="stat-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ total_users }}</h3>
+                    <p>Total Users</p>
+                </div>
+                <a href="{% url 'admin_users' %}" class="stat-link">View All <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-blogs">
+                <div class="stat-icon">
+                    <i class="bi bi-file-text-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ total_blogs }}</h3>
+                    <p>Total Blogs</p>
+                </div>
+                <a href="{% url 'admin_blogs' %}" class="stat-link">Manage <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-comments">
+                <div class="stat-icon">
+                    <i class="bi bi-chat-dots-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ total_comments }}</h3>
+                    <p>Total Comments</p>
+                </div>
+                <a href="{% url 'admin_comments' %}" class="stat-link">Moderate <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-categories">
+                <div class="stat-icon">
+                    <i class="bi bi-tags-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ total_categories }}</h3>
+                    <p>Categories</p>
+                </div>
+                <a href="{% url 'admin_categories' %}" class="stat-link">Manage <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-lightning-fill"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="quick-actions">
+                        <a href="{% url 'admin_users' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-person-plus"></i> Manage Users
+                        </a>
+                        <a href="{% url 'admin_blogs' %}" class="btn btn-outline-success">
+                            <i class="bi bi-file-earmark-plus"></i> View All Blogs
+                        </a>
+                        <a href="{% url 'admin_categories' %}" class="btn btn-outline-info">
+                            <i class="bi bi-tag"></i> Manage Categories
+                        </a>
+                        <a href="{% url 'admin_comments' %}" class="btn btn-outline-warning">
+                            <i class="bi bi-chat-square-text"></i> Moderate Comments
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row g-4">
+        <!-- Recent Blogs -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-clock-history"></i> Recent Blogs</h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-list">
+                        {% for blog in recent_blogs %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="bi bi-file-text"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h6><a href="{% url 'blog_detail' blog.slug %}">{{ blog.title }}</a></h6>
+                                <p class="text-muted">
+                                    by {{ blog.author.username }} in {{ blog.category.name }}
+                                    <br><small>{{ blog.created_at|timesince }} ago</small>
+                                </p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No recent blogs</p>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'admin_blogs' %}" class="btn btn-sm btn-link">View All Blogs →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Comments -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-chat-left-dots"></i> Recent Comments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-list">
+                        {% for comment in recent_comments %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="bi bi-chat"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h6>{{ comment.user.username }} on <a href="{% url 'blog_detail' comment.blog.slug %}">{{ comment.blog.title }}</a></h6>
+                                <p class="text-muted">
+                                    {{ comment.message|truncatewords:15 }}
+                                    <br><small>{{ comment.created_at|timesince }} ago</small>
+                                </p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No recent comments</p>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'admin_comments' %}" class="btn btn-sm btn-link">View All Comments →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-person-plus"></i> Recent Users</h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-list">
+                        {% for new_user in recent_users %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <img src="{{ new_user.avatar.url }}" alt="{{ new_user.username }}" class="rounded-circle" width="40" height="40">
+                            </div>
+                            <div class="activity-content">
+                                <h6><a href="{% url 'public_profile' new_user.username %}">{{ new_user.username }}</a></h6>
+                                <p class="text-muted">
+                                    {{ new_user.email }}
+                                    <br><small>Joined {{ new_user.date_joined|timesince }} ago</small>
+                                </p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No recent users</p>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'admin_users' %}" class="btn btn-sm btn-link">View All Users →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Categories -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-bar-chart-fill"></i> Top Categories</h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-list">
+                        {% for category in top_categories %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="bi bi-tag-fill"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h6><a href="{% url 'category_blog_list' category.slug %}">{{ category.name }}</a></h6>
+                                <p class="text-muted">{{ category.blog_count }} blog{{ category.blog_count|pluralize }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No categories yet</p>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'admin_categories' %}" class="btn btn-sm btn-link">Manage Categories →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/admin_dashboard.js' %}"></script>
+{% endblock %}

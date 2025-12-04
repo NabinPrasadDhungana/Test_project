@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Comment Moderation - Admin Dashboard{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <div class="admin-header">
+        <h1><i class="bi bi-chat-dots-fill"></i> Comment Moderation</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Comments</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control" placeholder="Search comments..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-4">
+                    <select name="blog" class="form-select">
+                        <option value="">All Blogs</option>
+                        {% for blog in blogs %}
+                        <option value="{{ blog.slug }}" {% if blog_filter == blog.slug %}selected{% endif %}>{{ blog.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Comments Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5>All Comments ({{ page_obj.paginator.count }})</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Blog</th>
+                            <th>Comment</th>
+                            <th>Posted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comment in comments %}
+                        <tr id="comment-{{ comment.id }}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ comment.user.avatar.url }}" alt="{{ comment.user.username }}" class="rounded-circle me-2" width="32" height="32">
+                                    <a href="{% url 'public_profile' comment.user.username %}">{{ comment.user.username }}</a>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{% url 'blog_detail' comment.blog.slug %}" target="_blank">{{ comment.blog.title|truncatewords:5 }}</a>
+                            </td>
+                            <td>
+                                <div class="comment-preview">
+                                    {{ comment.message|truncatewords:20 }}
+                                    {% if comment.message|wordcount > 20 %}
+                                    <button class="btn btn-link btn-sm p-0" onclick="showFullComment({{ comment.id }}, '{{ comment.message|escapejs }}')">Read more</button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <small>{{ comment.created_at|date:"M d, Y" }}<br>{{ comment.created_at|time:"g:i A" }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'blog_detail' comment.blog.slug %}#comment-{{ comment.id }}" class="btn btn-outline-primary" title="View" target="_blank">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-danger" onclick="deleteComment({{ comment.id }})" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No comments found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if blog_filter %}&blog={{ blog_filter }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if blog_filter %}&blog={{ blog_filter }}{% endif %}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if blog_filter %}&blog={{ blog_filter }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if blog_filter %}&blog={{ blog_filter }}{% endif %}">Last</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Full Comment Modal -->
+<div class="modal fade" id="fullCommentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Full Comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="fullCommentText"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/admin_dashboard.js' %}"></script>
+{% endblock %}
