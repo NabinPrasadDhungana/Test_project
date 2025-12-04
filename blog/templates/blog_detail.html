@@ -237,10 +237,12 @@
     </a>
 
     <div class="blog-detail-header">
-        <h1 class="blog-detail-title">{{ blog.title }}</h1>
+        <a href="{% url 'blog_detail' blog.slug %}" style="text-decoration: none; color: inherit;">
+            <h1 class="blog-detail-title">{{ blog.title }}</h1>
+        </a>
         
         <div class="blog-detail-meta">
-            <div class="blog-author-info" onclick="window.location.href='{% url 'public_profile' blog.author.username %}'">
+            <a href="{% url 'public_profile' blog.author.username %}" class="blog-author-info" style="text-decoration: none; color: inherit;">
                 <img src="{{ blog.author.avatar.url|default:'/media/avatars/default/default.jpg' }}" 
                      alt="{{ blog.author.username }}" 
                      class="blog-author-avatar">
@@ -253,13 +255,15 @@
                         {% endif %}
                     </div>
                 </div>
-            </div>
+            </a>
             <span class="blog-category-badge">{{ blog.category.name }}</span>
         </div>
     </div>
 
     {% if blog.image %}
-    <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="blog-detail-image">
+    <a href="{% url 'blog_detail' blog.slug %}">
+        <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="blog-detail-image">
+    </a>
     {% endif %}
 
     <div class="blog-detail-content">{{ blog.description }}</div>
