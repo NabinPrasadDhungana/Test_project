@@ -83,17 +83,17 @@ function createPostElement(post) {
 
     div.innerHTML = `
         <div class="post-header">
-            <img src="${authorAvatar}" alt="${authorName}" class="post-avatar">
+            <img src="${authorAvatar}" alt="${authorName}" class="post-avatar" style="cursor: pointer;" onclick="window.location.href='/accounts/profile/${post.author.username}/'">
             <div class="post-info">
-                <h5>${authorName}</h5>
+                <h5 style="cursor: pointer;" onclick="window.location.href='/accounts/profile/${post.author.username}/'">${authorName}</h5>
                 <p class="post-time">${date}</p>
             </div>
             ${authorActions}
         </div>
         <div class="post-content">
-            <h3 class="post-title">${escapeHtml(post.title)}</h3>
+            <h3 class="post-title" style="cursor: pointer;" onclick="window.location.href='/baseapp/blog/${post.slug}/'">${escapeHtml(post.title)}</h3>
             <p class="post-text">${escapeHtml(post.description)}</p>
-            ${post.image ? `<img src="${post.image}" alt="Post image" class="post-image rounded">` : ''}
+            ${post.image ? `<img src="${post.image}" alt="Post image" class="post-image rounded" style="cursor: pointer;" onclick="window.location.href='/baseapp/blog/${post.slug}/'">` : ''}
         </div>
         <div class="post-stats">
             <span class="likes-count">${post.likes_count} Likes</span>

@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ blog.title }} | Blog Post App{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/feed.css' %}">
+<style>
+    .blog-detail-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .blog-detail-header {
+        margin-bottom: 30px;
+    }
+
+    .blog-detail-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #050505;
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+
+    .blog-detail-meta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 15px 0;
+        border-bottom: 1px solid #e4e6eb;
+        margin-bottom: 20px;
+    }
+
+    .blog-author-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+    }
+
+    .blog-author-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        cursor: pointer;
+    }
+
+    .blog-author-details h5 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .blog-author-details h5:hover {
+        color: #667eea;
+    }
+
+    .blog-meta-info {
+        font-size: 0.9rem;
+        color: #65676b;
+    }
+
+    .blog-category-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .blog-detail-image {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .blog-detail-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #1c1e21;
+        margin-bottom: 30px;
+        white-space: pre-wrap;
+    }
+
+    .blog-actions-bar {
+        display: flex;
+        gap: 15px;
+        padding: 20px 0;
+        border-top: 1px solid #e4e6eb;
+        border-bottom: 1px solid #e4e6eb;
+        margin-bottom: 30px;
+    }
+
+    .blog-action-btn {
+        flex: 1;
+        background: transparent;
+        border: 2px solid #e4e6eb;
+        padding: 12px;
+        border-radius: 8px;
+        color: #65676b;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .blog-action-btn:hover {
+        background-color: #f0f2f5;
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .blog-action-btn.liked {
+        background-color: #ffe5e5;
+        border-color: #ff6b6b;
+        color: #ff6b6b;
+    }
+
+    .comments-section {
+        margin-top: 40px;
+    }
+
+    .comments-header {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #050505;
+    }
+
+    .comment-input-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .comment-input {
+        width: 100%;
+        border: 2px solid #e4e6eb;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 1rem;
+        resize: vertical;
+        min-height: 80px;
+        margin-bottom: 10px;
+    }
+
+    .comment-input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .comment-submit-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .comment-submit-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .comments-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .comment-item {
+        background: white;
+        border: 1px solid #e4e6eb;
+        border-radius: 12px;
+        padding: 15px;
+    }
+
+    .comment-author {
+        font-weight: 600;
+        color: #050505;
+        margin-bottom: 5px;
+    }
+
+    .comment-date {
+        font-size: 0.85rem;
+        color: #65676b;
+        margin-left: 10px;
+    }
+
+    .comment-text {
+        color: #1c1e21;
+        margin-top: 8px;
+        line-height: 1.5;
+    }
+
+    .empty-comments {
+        text-align: center;
+        padding: 40px;
+        color: #65676b;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: gap 0.3s;
+    }
+
+    .back-button:hover {
+        gap: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="blog-detail-container">
+    <a href="javascript:history.back()" class="back-button">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+
+    <div class="blog-detail-header">
+        <h1 class="blog-detail-title">{{ blog.title }}</h1>
+        
+        <div class="blog-detail-meta">
+            <div class="blog-author-info" onclick="window.location.href='{% url 'public_profile' blog.author.username %}'">
+                <img src="{{ blog.author.avatar.url|default:'/media/avatars/default/avatar.png' }}" 
+                     alt="{{ blog.author.username }}" 
+                     class="blog-author-avatar">
+                <div class="blog-author-details">
+                    <h5>{{ blog.author.name|default:blog.author.username }}</h5>
+                    <div class="blog-meta-info">
+                        <i class="bi bi-calendar"></i> {{ blog.created_at|date:"F d, Y" }}
+                        {% if blog.created_at != blog.updated_at %}
+                        · Updated {{ blog.updated_at|date:"M d, Y" }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <span class="blog-category-badge">{{ blog.category.name }}</span>
+        </div>
+    </div>
+
+    {% if blog.image %}
+    <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="blog-detail-image">
+    {% endif %}
+
+    <div class="blog-detail-content">{{ blog.description }}</div>
+
+    <div class="blog-actions-bar">
+        <button class="blog-action-btn {% if user_has_liked %}liked{% endif %}" id="likeBtn" data-blog-id="{{ blog.id }}">
+            <span id="likeIcon">{% if user_has_liked %}❤️{% else %}👍{% endif %}</span>
+            <span id="likeText">{% if user_has_liked %}Liked{% else %}Like{% endif %}</span>
+            <span id="likeCount">({{ likes_count }})</span>
+        </button>
+        <button class="blog-action-btn" onclick="document.getElementById('commentInput').focus()">
+            <i class="bi bi-chat-dots"></i> Comment ({{ comments.count }})
+        </button>
+    </div>
+
+    <div class="comments-section">
+        <h2 class="comments-header">Comments ({{ comments.count }})</h2>
+
+        {% if user.is_authenticated %}
+        <div class="comment-input-section">
+            <textarea class="comment-input" id="commentInput" placeholder="Write a comment..."></textarea>
+            <button class="comment-submit-btn" id="submitComment">Post Comment</button>
+        </div>
+        {% else %}
+        <div class="comment-input-section">
+            <p style="text-align: center; margin: 0;">
+                <a href="{% url 'login' %}">Login</a> to leave a comment
+            </p>
+        </div>
+        {% endif %}
+
+        <div class="comments-list" id="commentsList">
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="comment-item">
+                    <div>
+                        <span class="comment-author">{{ comment.user.name|default:comment.user.username }}</span>
+                        <span class="comment-date">{{ comment.created_at|date:"M d, Y - g:i A" }}</span>
+                    </div>
+                    <p class="comment-text">{{ comment.message }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-comments" id="emptyComments">
+                    <i class="bi bi-chat-dots" style="font-size: 3rem; color: #c3cfe2;"></i>
+                    <p>No comments yet. Be the first to comment!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/auth.js' %}"></script>
+<script>
+    const blogId = {{ blog.id }};
+
+    // Handle like button
+    document.getElementById('likeBtn').addEventListener('click', async function() {
+        if (!TokenManager.isAuthenticated()) {
+            window.location.href = '{% url "login" %}';
+            return;
+        }
+
+        try {
+            const response = await TokenManager.authenticatedFetch('/api/likes/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ blog: blogId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const likeBtn = document.getElementById('likeBtn');
+                const likeIcon = document.getElementById('likeIcon');
+                const likeText = document.getElementById('likeText');
+                const likeCount = document.getElementById('likeCount');
+
+                if (data.status === 'unliked') {
+                    likeBtn.classList.remove('liked');
+                    likeIcon.textContent = '👍';
+                    likeText.textContent = 'Like';
+                    likeCount.textContent = `(${parseInt(likeCount.textContent.match(/\d+/)[0]) - 1})`;
+                } else {
+                    likeBtn.classList.add('liked');
+                    likeIcon.textContent = '❤️';
+                    likeText.textContent = 'Liked';
+                    likeCount.textContent = `(${parseInt(likeCount.textContent.match(/\d+/)[0]) + 1})`;
+                }
+            }
+        } catch (error) {
+            console.error('Error liking post:', error);
+        }
+    });
+
+    // Handle comment submission
+    {% if user.is_authenticated %}
+    document.getElementById('submitComment').addEventListener('click', async function() {
+        const commentInput = document.getElementById('commentInput');
+        const message = commentInput.value.trim();
+
+        if (!message) {
+            alert('Please write a comment');
+            return;
+        }
+
+        try {
+            const response = await TokenManager.authenticatedFetch('/api/comments/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    blog: blogId,
+                    message: message
+                })
+            });
+
+            if (response.ok) {
+                const comment = await response.json();
+                
+                // Remove empty state if exists
+                const emptyComments = document.getElementById('emptyComments');
+                if (emptyComments) {
+                    emptyComments.remove();
+                }
+
+                // Add new comment to the list
+                const commentsList = document.getElementById('commentsList');
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment-item';
+                commentDiv.innerHTML = `
+                    <div>
+                        <span class="comment-author">{{ user.name|default:user.username }}</span>
+                        <span class="comment-date">Just now</span>
+                    </div>
+                    <p class="comment-text">${escapeHtml(message)}</p>
+                `;
+                commentsList.insertBefore(commentDiv, commentsList.firstChild);
+
+                // Clear input
+                commentInput.value = '';
+
+                // Update comment count
+                const commentCountText = document.querySelector('.blog-action-btn:nth-child(2)');
+                const currentCount = parseInt(commentCountText.textContent.match(/\d+/)[0]);
+                commentCountText.innerHTML = `<i class="bi bi-chat-dots"></i> Comment (${currentCount + 1})`;
+
+                // Update header count
+                document.querySelector('.comments-header').textContent = `Comments (${currentCount + 1})`;
+            } else {
+                alert('Failed to post comment');
+            }
+        } catch (error) {
+            console.error('Error posting comment:', error);
+            alert('Failed to post comment');
+        }
+    });
+
+    // Allow Enter key to submit (with Shift+Enter for new line)
+    document.getElementById('commentInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.getElementById('submitComment').click();
+        }
+    });
+    {% endif %}
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+{% endblock %}

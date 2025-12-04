@@ -13,33 +13,21 @@ class IndexView(ListView):
     context_object_name = 'blogs'
     ordering = ['-created_at']
 
-# class BlogDetailView(FormMixin, DetailView):
-#     model = Blog
-#     template_name = 'baseapp/blog_detail.html'
-#     context_object_name = 'blog'
-#     form_class = CommentForm
 
-#     def get_success_url(self):
-#         return reverse('blog_detail', kwargs={'slug': self.object.slug})
+class BlogDetailView(DetailView):
+    model = Blog
+    template_name = 'blog_detail.html'
+    context_object_name = 'blog'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['comments'] = self.object.comments.all().order_by('-created_at')
-#         context['form'] = self.get_form()
-#         return context
-
-#     def post(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         form = self.get_form()
-#         if form.is_valid():
-#             return self.form_valid(form)
-#         else:
-#             return self.form_invalid(form)
-
-#     def form_valid(self, form):
-#         comment = form.save(commit=False)
-#         comment.blog = self.object
-#         if self.request.user.is_authenticated:
-#             comment.user = self.request.user
-#         comment.save()
-#         return super().form_valid(form)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comments'] = self.object.comments.all().order_by('-created_at')
+        context['likes_count'] = self.object.likes.count()
+        # Check if current user has liked this post
+        if self.request.user.is_authenticated:
+            context['user_has_liked'] = self.object.likes.filter(user=self.request.user).exists()
+        else:
+            context['user_has_liked'] = False
+        return context

@@ -25,7 +25,25 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = self.request.user
+        context['profile_user'] = self.request.user
+        context['posts'] = Blog.objects.filter(author=self.request.user).order_by('-created_at')
+        context['is_own_profile'] = True
+        return context
+
+class PublicProfileView(TemplateView):
+    template_name = 'accounts/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        username = self.kwargs.get('username')
+        try:
+            profile_user = User.objects.get(username=username)
+            context['profile_user'] = profile_user
+            context['posts'] = Blog.objects.filter(author=profile_user).order_by('-created_at')
+            context['is_own_profile'] = self.request.user.is_authenticated and self.request.user == profile_user
+        except User.DoesNotExist:
+            from django.http import Http404
+            raise Http404("User not found")
         return context
     
 class CustomLogoutView(LogoutView):
