@@ -23,8 +23,6 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-import baseapp, api
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('baseapp/', include('baseapp.urls')),

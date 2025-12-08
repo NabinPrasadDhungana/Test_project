@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin   
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 from .forms import CustomUserCreationForm
 from django.views.generic.edit import CreateView
 from django.views.generic import TemplateView
@@ -50,8 +52,6 @@ class CustomLogoutView(LogoutView):
     http_method_names = ['get', 'post', 'head', 'options']
     
     def get(self, request, *args, **kwargs):
-        from django.contrib.auth import logout
-        from django.shortcuts import redirect
         logout(request)
         return redirect('index')
     

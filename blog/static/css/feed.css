@@ -1,3 +1,12 @@
+/* Read More Link Styling */
+.read-more-link {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.read-more-link:hover {
+    text-decoration: none;
+}
 /* Feed Container */
 .feed-container {
     max-width: 680px;

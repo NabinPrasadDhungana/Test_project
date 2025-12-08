@@ -84,7 +84,11 @@
             </div>
             <div class="post-content">
                 <h2 class="post-title"><a href="${postUrl}">${post.title}</a></h2>
-                <p class="post-description">${post.description.substring(0, 200)}${post.description.length > 200 ? '...' : ''}</p>
+                <p class="post-description">
+                    ${post.description.length > 200
+                        ? post.description.substring(0, 200) + '... <a href="' + postUrl + '" class="read-more-link">Read more</a>'
+                        : post.description}
+                </p>
                 ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image">` : ''}
             </div>
             <div class="post-footer">

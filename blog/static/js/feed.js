@@ -98,7 +98,11 @@ function createPostElement(post) {
             <a href="/baseapp/blog/${post.slug}/" style="text-decoration: none; color: inherit;">
                 <h3 class="post-title">${escapeHtml(post.title)}</h3>
             </a>
-            <p class="post-text">${escapeHtml(post.description)}</p>
+            <p class="post-text">
+                ${post.description.length > 200
+                    ? escapeHtml(post.description.substring(0, 200)) + '... <a href="/baseapp/blog/' + post.slug + '/" class="read-more-link" style="color:#007bff;text-decoration:underline;">Read more</a>'
+                    : escapeHtml(post.description)}
+            </p>
             ${post.image ? `<a href="/baseapp/blog/${post.slug}/"><img src="${post.image}" alt="Post image" class="post-image rounded"></a>` : ''}
         </div>
         <div class="post-stats">
